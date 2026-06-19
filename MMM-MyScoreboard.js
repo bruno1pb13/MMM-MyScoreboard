@@ -20,6 +20,7 @@ Module.register("MMM-MyScoreboard",{
     highlightWinners: true,
     viewStyle: "largeLogos",
     showRankings: true,
+    hideFutureGames: false,
     sports: [
       {
         league: "NHL",
@@ -535,6 +536,10 @@ Module.register("MMM-MyScoreboard",{
     var self = this;
     this.config.sports.forEach(function(sport, index) {
       if (self.sportsData[index] != null && self.sportsData[index].length > 0) {
+        var gamesToShow = self.config.hideFutureGames
+          ? self.sportsData[index].filter(function(g) { return g.gameMode !== 0; })
+          : self.sportsData[index];
+        if (gamesToShow.length === 0) { return; }
         anyGames = true;
         if (self.config.showLeagueSeparators) {
           var leagueSeparator = document.createElement("div");
@@ -546,7 +551,7 @@ Module.register("MMM-MyScoreboard",{
           }
           wrapper.appendChild(leagueSeparator);
         }
-        self.sportsData[index].forEach(function(game, gidx) {
+        gamesToShow.forEach(function(game, gidx) {
           var boxScore = self.boxScoreFactory(sport.league, game);
           boxScore.classList.add(gidx % 2 == 0 ? "odd" : "even") ;
           wrapper.appendChild(boxScore);
