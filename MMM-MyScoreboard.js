@@ -9,6 +9,12 @@
 
  *********************************/
 
+const GAME_STATE = {
+  SCHEDULED:   0,
+  IN_PROGRESS: 1,
+  FINAL:       2,
+};
+
 Module.register("MMM-MyScoreboard",{
 
   // Default module config.
@@ -494,6 +500,11 @@ Module.register("MMM-MyScoreboard",{
     return boxScore;
   },
 
+  getVisibleGames: function(games) {
+    if (!this.config.hideFutureGames) { return games; }
+    return games.filter(function(game) { return game.gameMode !== GAME_STATE.SCHEDULED; });
+  },
+
   // Override dom generator.
   getDom: function() {
 
@@ -535,10 +546,8 @@ Module.register("MMM-MyScoreboard",{
     var anyGames = false;
     var self = this;
     this.config.sports.forEach(function(sport, index) {
-      if (self.sportsData[index] != null && self.sportsData[index].length > 0) {
-        var gamesToShow = self.config.hideFutureGames
-          ? self.sportsData[index].filter(function(g) { return g.gameMode !== 0; })
-          : self.sportsData[index];
+      if (self.sportsData[index] != null) {
+        var gamesToShow = self.getVisibleGames(self.sportsData[index]);
         if (gamesToShow.length === 0) { return; }
         anyGames = true;
         if (self.config.showLeagueSeparators) {
